@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import postgres from 'postgres';
  
+
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
  
 const FormSchema = z.object({
@@ -50,7 +51,8 @@ Calling redirect to redirect the user to the invoice's page. */
       amount: formData.get('amount'),
       status: formData.get('status'),
     });
-   
+    
+    
     const amountInCents = amount * 100;
    
     await sql`
