@@ -26,12 +26,20 @@ export async function createInvoice(formData: FormData) {
     amount: formData.get('amount'),
     status: formData.get('status'),
   });
+ 
   const amountInCents = amount * 100;
   const date = new Date().toISOString().split('T')[0];
-
-  await sql`INSERT INTO invoices (customer_id, amount, status, date)
-   VALUES (${customerId}, ${amountInCents}, ${status}, ${date})`;
-    
+ 
+  try {
+    await sql`
+      INSERT INTO invoices (customer_id, amount, status, date)
+      VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
+    `;
+  } catch (error) {
+    // We'll log the error to the console for now
+    console.error(error);
+  }
+ 
   revalidatePath('/dashboard/invoices');
   redirect('/dashboard/invoices');
 }
@@ -45,28 +53,34 @@ Passing the variables to your SQL query.
 Calling revalidatePath to clear the client cache and make a new server request.
 Calling redirect to redirect the user to the invoice's page. */
 
-   export async function updateInvoice(id: string, formData: FormData) {
-    const { customerId, amount, status } = UpdateInvoice.parse({
-      customerId: formData.get('customerId'),
-      amount: formData.get('amount'),
-      status: formData.get('status'),
-    });
-    
-    
-    const amountInCents = amount * 100;
-   
+export async function updateInvoice(id: string, formData: FormData) {
+  const { customerId, amount, status } = UpdateInvoice.parse({
+    customerId: formData.get('customerId'),
+    amount: formData.get('amount'),
+    status: formData.get('status'),
+  });
+ 
+  const amountInCents = amount * 100;
+ 
+  try {
     await sql`
-      UPDATE invoices
-      SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
-      WHERE id = ${id}
-    `;
-
-
-   revalidatePath('/dashboard/invoices');
-   redirect('/dashboard/invoices');
+        UPDATE invoices
+        SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
+        WHERE id = ${id}
+      `;
+  } catch (error) {
+    // We'll log the error to the console for now
+    console.error(error);
+  }
+ 
+  revalidatePath('/dashboard/invoices');
+  redirect('/dashboard/invoices');
 }
 
 export async function deleteInvoice(id: string) {
+  throw new Error('Failed to Delete Invoice');
+ 
+  // Unreachable code block
   await sql`DELETE FROM invoices WHERE id = ${id}`;
   revalidatePath('/dashboard/invoices');
 }
